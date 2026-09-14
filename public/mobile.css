@@ -1,0 +1,90 @@
+@media(max-width:700px) {
+  .message-intro {
+    padding: 100px 20px 60px;
+  }
+
+  .message-intro p {
+    font-size: clamp(36px,10vw,46px);
+    line-height: 1;
+  }
+
+  .message-stack {
+    width: 100%;
+    padding: 0 12px 70px;
+  }
+
+  .message-section {
+    min-height: 0;
+    width: 100%;
+    padding: 70px 0 125px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .message-copy {
+    width: 100%;
+    max-width: 100%;
+    padding: 34px 24px;
+    border-radius: 3px;
+  }
+
+  .message-number {
+    margin-bottom: 20px;
+    font-size: 10px;
+  }
+
+  .message-copy p {
+    font-size: clamp(29px,8.4vw,38px);
+    line-height: 1.1;
+    letter-spacing: -.025em;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .message-photo {
+    width: 100px;
+    height: 134px;
+    padding: 6px 6px 17px;
+  }
+
+  .photo-one,
+  .right .photo-one,
+  .split .photo-one {
+    left: 0;
+    right: auto;
+    top: 4%;
+  }
+
+  .photo-two,
+  .right .photo-two,
+  .split .photo-two {
+    right: 0;
+    left: auto;
+    bottom: 4%;
+  }
+
+  .message-section.is-visible.left .photo-one {
+    transform: rotate(-5deg);
+  }
+
+  .message-section.is-visible.left .photo-two {
+    transform: rotate(5deg);
+  }
+
+  .message-section.is-visible.right .photo-one {
+    transform: rotate(5deg);
+  }
+
+  .message-section.is-visible.right .photo-two {
+    transform: rotate(-5deg);
+  }
+
+  .message-section.is-visible.split .photo-one {
+    transform: rotate(-4deg);
+  }
+
+  .message-section.is-visible.split .photo-two {
+    transform: rotate(4deg);
+  }
+}
