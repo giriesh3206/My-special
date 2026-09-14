@@ -29,41 +29,26 @@ function Creator() {
   const [photos, setPhotos] = useState([])
   const [created, setCreated] = useState(false)
 
-  const addMessage = () => {
-    setMessages(value => [...value, "Write another thing you want them to know."])
-  }
-
-  const updateMessage = (index, value) => {
-    setMessages(items => items.map((item, i) => i === index ? value : item))
-  }
-
-  const removeMessage = index => {
-    setMessages(items => items.filter((_, i) => i !== index))
-  }
+  const addMessage = () => setMessages(value => [...value, "Write another thing you want them to know."])
+  const updateMessage = (index, value) => setMessages(items => items.map((item, i) => i === index ? value : item))
+  const removeMessage = index => setMessages(items => items.filter((_, i) => i !== index))
 
   const addPhotos = event => {
     const files = [...event.target.files]
-    const mapped = files.map(file => ({
-      id: crypto.randomUUID(),
-      url: URL.createObjectURL(file),
-      name: file.name
-    }))
+    const mapped = files.map(file => ({ id: crypto.randomUUID(), url: URL.createObjectURL(file), name: file.name }))
     setPhotos(items => [...items, ...mapped])
     event.target.value = ""
   }
 
-  const removePhoto = id => {
-    setPhotos(items => items.filter(item => item.id !== id))
-  }
+  const removePhoto = id => setPhotos(items => items.filter(item => item.id !== id))
 
   const createCard = () => {
-    const data = {
+    localStorage.setItem("sorry-card-demo", JSON.stringify({
       recipient,
       sender,
       messages: messages.filter(Boolean),
       photos: photos.map(item => item.url)
-    }
-    localStorage.setItem("sorry-card-demo", JSON.stringify(data))
+    }))
     setCreated(true)
   }
 
@@ -73,68 +58,17 @@ function Creator() {
         <div className="eyebrow">FROM MY HEART</div>
         <h1>Create the message they should see.</h1>
         <p className="lead">Your words stay in the middle. Your memories sit around them.</p>
-
-        <label>
-          Their name
-          <input value={recipient} onChange={e => setRecipient(e.target.value)} />
-        </label>
-
-        <label>
-          Your name
-          <input value={sender} onChange={e => setSender(e.target.value)} />
-        </label>
-
-        <div className="section-heading">
-          <div>
-            <h2>Your messages</h2>
-            <span>One message per section.</span>
-          </div>
-          <button className="small-button" onClick={addMessage}>+ Add</button>
-        </div>
-
+        <label>Their name<input value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
+        <label>Your name<input value={sender} onChange={e => setSender(e.target.value)} /></label>
+        <div className="section-heading"><div><h2>Your messages</h2><span>One message per section.</span></div><button className="small-button" onClick={addMessage}>+ Add</button></div>
         <div className="message-editor">
-          {messages.map((message, index) => (
-            <div className="message-row" key={index}>
-              <span>{index + 1}</span>
-              <textarea value={message} onChange={e => updateMessage(index, e.target.value)} />
-              {messages.length > 1 && <button className="delete-button" onClick={() => removeMessage(index)}>×</button>}
-            </div>
-          ))}
+          {messages.map((message, index) => <div className="message-row" key={index}><span>{index + 1}</span><textarea value={message} onChange={e => updateMessage(index, e.target.value)} />{messages.length > 1 && <button className="delete-button" onClick={() => removeMessage(index)}>×</button>}</div>)}
         </div>
-
-        <div className="section-heading">
-          <div>
-            <h2>Your photos</h2>
-            <span>These appear around the messages.</span>
-          </div>
-        </div>
-
-        <label className="upload-box">
-          <input type="file" accept="image/*" multiple onChange={addPhotos} />
-          <strong>+ Add photos</strong>
-          <span>Select several memories from your phone.</span>
-        </label>
-
-        {photos.length > 0 && (
-          <div className="creator-photos">
-            {photos.map(photo => (
-              <div className="creator-photo" key={photo.id}>
-                <img src={photo.url} alt="" />
-                <button onClick={() => removePhoto(photo.id)}>×</button>
-              </div>
-            ))}
-          </div>
-        )}
-
+        <div className="section-heading"><div><h2>Your photos</h2><span>These appear around the messages.</span></div></div>
+        <label className="upload-box"><input type="file" accept="image/*" multiple onChange={addPhotos} /><strong>+ Add photos</strong><span>Select several memories from your phone.</span></label>
+        {photos.length > 0 && <div className="creator-photos">{photos.map(photo => <div className="creator-photo" key={photo.id}><img src={photo.url} alt="" /><button onClick={() => removePhoto(photo.id)}>×</button></div>)}</div>}
         <button className="primary-button" onClick={createCard}>Preview receiver experience</button>
-
-        {created && (
-          <div className="created-box">
-            <strong>Your preview is ready.</strong>
-            <a href="/sorry/demo">Open receiver experience →</a>
-            <span>For now this stores the photos in this browser. Firebase can be connected next.</span>
-          </div>
-        )}
+        {created && <div className="created-box"><strong>Your preview is ready.</strong><a href="/sorry/demo">Open receiver experience →</a><span>For now this stores the photos in this browser. Firebase can be connected next.</span></div>}
       </section>
     </main>
   )
@@ -148,61 +82,34 @@ function Receiver() {
     const saved = localStorage.getItem("sorry-card-demo")
     if (saved) {
       try {
-        setCard(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        const validPhotos = Array.isArray(parsed.photos) ? parsed.photos.filter(photo => typeof photo === "string" && /^(https?:\/\/|\/)/.test(photo)) : []
+        setCard({ ...parsed, photos: validPhotos })
       } catch {
         setCard(null)
       }
     }
   }, [])
 
-  const data = card || {
-    recipient: "Giriesh",
-    sender: "Someone who is sorry",
-    messages: defaultMessages,
-    photos: demoPhotos
+  const stored = card || {}
+  const data = {
+    recipient: stored.recipient || "Giriesh",
+    sender: stored.sender || "Someone who is sorry",
+    messages: Array.isArray(stored.messages) && stored.messages.length ? stored.messages : defaultMessages,
+    photos: stored.photos && stored.photos.length ? stored.photos : demoPhotos
   }
 
-  const sections = useMemo(() => data.messages.map((message, i) => ({
-    message,
-    photo: data.photos.length ? data.photos[i % data.photos.length] : null
-  })), [data])
+  const sections = useMemo(() => data.messages.map((message, i) => ({ message, photo: data.photos[i % data.photos.length] })), [data])
 
   return (
     <main className="receiver-shell">
-      <div className="receiver-top">
-        <span>for {data.recipient}</span>
-        <span>♥</span>
-      </div>
-
-      <section className="intro">
-        <p className="tiny-label">A message from {data.sender}</p>
-        <h1>I'm sorry, {data.recipient}.</h1>
-        <p className="intro-copy">There are a few things I really need you to know.</p>
-      </section>
-
-      <div className="message-stack">
-        {sections.map((section, i) => (
-          <MessageSection
-            key={i}
-            message={section.message}
-            photo={section.photo}
-            position={i}
-          />
-        ))}
-      </div>
-
+      <div className="receiver-top"><span>for {data.recipient}</span><span>♥</span></div>
+      <section className="intro"><p className="tiny-label">A message from {data.sender}</p><h1>I'm sorry, {data.recipient}.</h1><p className="intro-copy">There are a few things I really need you to know.</p></section>
+      <div className="message-stack">{sections.map((section, i) => <MessageSection key={i} message={section.message} photo={section.photo} position={i} />)}</div>
       <section className="final-section">
-        <div className="final-photo-cluster">
-          {data.photos.slice(0, 3).map((photo, i) => (
-            <img className={`final-photo final-${i}`} key={photo + i} src={photo} alt="" />
-          ))}
-        </div>
-        <p className="tiny-label">One last thing</p>
-        <h2>Can we make things right?</h2>
-        <p>{data.recipient}, I'm genuinely sorry.</p>
-        <button className="forgive-button" onClick={() => setIndex(value => value + 1)}>
-          I forgive you ❤️
-        </button>
+        <div className="final-photo-cluster">{data.photos.slice(0, 3).map((photo, i) => <img className={`final-photo final-${i}`} key={photo + i} src={photo} alt="" />)}</div>
+        <p className="tiny-label">One last thing</p><h2>Can we make things right?</h2><p>{data.recipient}, I'm genuinely sorry.</p>
+        <button className="forgive-button" onClick={() => setIndex(value => value + 1)}>I forgive you ❤️</button>
         {index > 0 && <div className="reply">Thank you for hearing me out.</div>}
       </section>
     </main>
@@ -217,36 +124,21 @@ function MessageSection({ message, photo, position }) {
   useEffect(() => {
     const element = document.getElementById(`message-${position}`)
     if (!element) return
-
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setVisible(true)
-            setTimeout(() => setSettled(true), 850)
-            observer.disconnect()
-          }
-        })
-      },
-      { threshold: 0.35 }
-    )
-
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        setVisible(true)
+        setTimeout(() => setSettled(true), 850)
+        observer.disconnect()
+      }
+    }), { threshold: 0.35 })
     observer.observe(element)
     return () => observer.disconnect()
   }, [position])
 
-  return (
-    <section
-      id={`message-${position}`}
-      className={`message-section ${layouts[position % layouts.length]} ${visible ? "is-visible" : ""} ${settled ? "is-settled" : ""}`}
-    >
-      {photo && <img className="memory-photo" src={photo} alt="" />}
-      <div className="message-copy">
-        <span className="message-number">0{position + 1}</span>
-        <p>{message}</p>
-      </div>
-    </section>
-  )
+  return <section id={`message-${position}`} className={`message-section ${layouts[position % layouts.length]} ${visible ? "is-visible" : ""} ${settled ? "is-settled" : ""}`}>
+    {photo && <img className="memory-photo" src={photo} alt="" />}
+    <div className="message-copy"><span className="message-number">0{position + 1}</span><p>{message}</p></div>
+  </section>
 }
 
 createRoot(document.getElementById("root")).render(<App />)
