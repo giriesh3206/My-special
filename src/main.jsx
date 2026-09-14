@@ -10,10 +10,10 @@ const defaultMessages = [
 ]
 
 const demoPhotos = [
-  "https://picsum.photos/id/1011/900/1100",
-  "https://picsum.photos/id/1027/900/1100",
-  "https://picsum.photos/id/1062/900/1100",
-  "https://picsum.photos/id/1074/900/1100"
+  "/demo/memory-1.svg",
+  "/demo/memory-2.svg",
+  "/demo/memory-3.svg",
+  "/demo/memory-4.svg"
 ]
 
 function App() {
