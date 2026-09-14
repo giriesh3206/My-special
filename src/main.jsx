@@ -33,11 +33,7 @@ function Creator() {
   }
   const removePhoto = id => setPhotos(items => items.filter(item => item.id !== id))
   const createCard = () => {
-    const payload = {
-      recipient,
-      sender,
-      messages: messages.filter(Boolean)
-    }
+    const payload = { recipient, sender, messages: messages.filter(Boolean) }
     const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))))
     const url = `${window.location.origin}/sorry/share?data=${encoded}`
     localStorage.setItem("sorry-card-demo", JSON.stringify({ ...payload, photos: photos.map(item => item.url) }))
@@ -60,7 +56,6 @@ function Creator() {
 
 function Receiver() {
   const [card, setCard] = useState(null)
-  const [index, setIndex] = useState(0)
   const isDemo = window.location.pathname === "/sorry/demo"
 
   useEffect(() => {
@@ -77,8 +72,7 @@ function Receiver() {
     if (!saved) return
     try {
       const parsed = JSON.parse(saved)
-      const validPhotos = Array.isArray(parsed.photos) ? parsed.photos.filter(photo => typeof photo === "string" && /^(https?:\/\/|\/)/.test(photo)) : []
-      setCard({ ...parsed, photos: validPhotos })
+      setCard(parsed)
     } catch {}
   }, [isDemo])
 
@@ -87,32 +81,67 @@ function Receiver() {
     recipient: stored.recipient || "Giriesh",
     sender: stored.sender || "Someone who is sorry",
     messages: Array.isArray(stored.messages) && stored.messages.length ? stored.messages : defaultMessages,
-    photos: stored.photos && stored.photos.length ? stored.photos : demoPhotos
+    photos: Array.isArray(stored.photos) && stored.photos.length ? stored.photos : demoPhotos
   }
-  const sections = useMemo(() => data.messages.map((message, i) => ({ message, photo: data.photos[i % data.photos.length] })), [data])
+  const sections = useMemo(() => data.messages.map((message, i) => ({
+    message,
+    photos: [data.photos[(i * 2) % data.photos.length], data.photos[(i * 2 + 1) % data.photos.length]].filter(Boolean)
+  })), [data])
 
   return <main className="receiver-shell">
-    <div className="receiver-top"><span>for {data.recipient}</span><span>♥</span></div>
-    <section className="intro"><p className="tiny-label">A message from {data.sender}</p><h1>I'm sorry, {data.recipient}.</h1><p className="intro-copy">There are a few things I really need you to know.</p></section>
-    <div className="message-stack">{sections.map((section, i) => <MessageSection key={i} message={section.message} photo={section.photo} position={i} />)}</div>
-    <section className="final-section"><div className="final-photo-cluster">{data.photos.slice(0, 3).map((photo, i) => <img className={`final-photo final-${i}`} key={photo + i} src={photo} alt="" />)}</div><p className="tiny-label">One last thing</p><h2>Can we make things right?</h2><p>{data.recipient}, I'm genuinely sorry.</p><button className="forgive-button" onClick={() => setIndex(value => value + 1)}>I forgive you ❤️</button>{index > 0 && <div className="reply">Thank you for hearing me out.</div>}</section>
+    <header className="receiver-nav"><span>for {data.recipient}</span><span className="nav-mark">♥</span></header>
+    <section className="receiver-opening">
+      <div className="opening-glow" />
+      <p className="tiny-label">A little something from {data.sender}</p>
+      <h1>I wanted you<br /><em>to know.</em></h1>
+      <p className="opening-copy">Not to make excuses. Just to say the things I should have said.</p>
+      <div className="scroll-cue"><span>keep reading</span><i /></div>
+    </section>
+    <section className="message-intro">
+      <span className="chapter-label">01 · what I mean</span>
+      <p>There are a few things<br />I need you to hear.</p>
+    </section>
+    <div className="message-stack">
+      {sections.map((section, i) => <MessageSection key={i} message={section.message} photos={section.photos} position={i} />)}
+    </div>
+    <section className="receiver-ending">
+      <div className="ending-line" />
+      <p className="tiny-label">And finally</p>
+      <h2>I am<br /><em>sorry.</em></h2>
+      <p className="ending-copy">I don't expect an answer right now.<br />I just wanted you to know.</p>
+      <div className="ending-heart">♥</div>
+    </section>
   </main>
 }
 
-function MessageSection({ message, photo, position }) {
-  const layouts = ["left", "right", "wide", "left"]
+function MessageSection({ message, photos, position }) {
+  const layouts = ["left", "right", "split", "left"]
   const [visible, setVisible] = useState(false)
   const [settled, setSettled] = useState(false)
+
   useEffect(() => {
     const element = document.getElementById(`message-${position}`)
     if (!element) return
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { setVisible(true); setTimeout(() => setSettled(true), 850); observer.disconnect() } }), { threshold: 0.35 })
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          setTimeout(() => setSettled(true), 900)
+          observer.disconnect()
+        }
+      })
+    }, { threshold: 0.3 })
     observer.observe(element)
     return () => observer.disconnect()
   }, [position])
+
   return <section id={`message-${position}`} className={`message-section ${layouts[position % layouts.length]} ${visible ? "is-visible" : ""} ${settled ? "is-settled" : ""}`}>
-    {photo && <img className="memory-photo" src={photo} alt="" />}
-    <div className="message-copy"><span className="message-number">0{position + 1}</span><p>{message}</p></div>
+    <div className="message-photo photo-one">{photos[0] && <img src={photos[0]} alt="" />}</div>
+    {photos[1] && <div className="message-photo photo-two"><img src={photos[1]} alt="" /></div>}
+    <div className="message-copy">
+      <span className="message-number">0{position + 1}</span>
+      <p>{message}</p>
+    </div>
   </section>
 }
 
