@@ -820,7 +820,7 @@ function Receiver() {
         </p>
 
         <p className="ending-copy ending-secondary">
-          No pressure to respond.
+          You don't have to reply.
           <br />
           Just know that I care about you,
           and I hope we can be okay again someday.
