@@ -19,10 +19,10 @@
     width: 100%;
     padding: 90px 0 120px;
     display: grid;
-    grid-template-columns: minmax(58px, 1fr) minmax(0, 58vw) minmax(58px, 1fr);
+    grid-template-columns: 46px minmax(0,1fr) 46px;
     align-items: center;
     justify-items: center;
-    column-gap: 4px;
+    column-gap: 2px;
     overflow: visible;
   }
 
@@ -32,8 +32,8 @@
     grid-column: 2;
     grid-row: 1;
     width: 100%;
-    max-width: 230px;
-    padding: 32px 18px;
+    max-width: 100%;
+    padding: 34px 22px;
     border-radius: 3px;
     box-sizing: border-box;
   }
@@ -44,7 +44,7 @@
   }
 
   .message-copy p {
-    font-size: clamp(25px,6.8vw,32px);
+    font-size: clamp(25px,7vw,30px);
     line-height: 1.1;
     letter-spacing: -.025em;
     overflow-wrap: anywhere;
@@ -59,9 +59,9 @@
     bottom: auto;
     left: auto;
     grid-row: 1;
-    width: clamp(58px,17vw,72px);
-    height: clamp(80px,24vw,98px);
-    padding: 4px 4px 12px;
+    width: clamp(66px,18vw,78px);
+    height: clamp(88px,25vw,104px);
+    padding: 5px 5px 13px;
     margin: 0;
     opacity: 1 !important;
     filter: none !important;
