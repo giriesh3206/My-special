@@ -10,21 +10,21 @@
 
   .message-stack {
     width: 100%;
-    padding: 0 12px 70px;
+    padding: 0 6px 70px;
   }
 
   .message-section {
     min-height: 0;
     width: 100%;
-    padding: 70px 0 125px;
+    padding: 105px 0 150px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .message-copy {
-    width: 100%;
-    max-width: 100%;
+    width: min(72vw, 340px);
+    max-width: 340px;
     padding: 34px 24px;
     border-radius: 3px;
   }
@@ -35,7 +35,7 @@
   }
 
   .message-copy p {
-    font-size: clamp(29px,8.4vw,38px);
+    font-size: clamp(28px,8vw,37px);
     line-height: 1.1;
     letter-spacing: -.025em;
     overflow-wrap: anywhere;
@@ -43,9 +43,10 @@
   }
 
   .message-photo {
-    width: 100px;
-    height: 134px;
-    padding: 6px 6px 17px;
+    width: clamp(70px, 21vw, 88px);
+    height: clamp(96px, 29vw, 118px);
+    padding: 5px 5px 14px;
+    z-index: 6;
   }
 
   .photo-one,
@@ -53,7 +54,7 @@
   .split .photo-one {
     left: 0;
     right: auto;
-    top: 4%;
+    top: 5%;
   }
 
   .photo-two,
@@ -61,7 +62,7 @@
   .split .photo-two {
     right: 0;
     left: auto;
-    bottom: 4%;
+    bottom: 5%;
   }
 
   .message-section.is-visible.left .photo-one {
