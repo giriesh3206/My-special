@@ -11,10 +11,10 @@ import { loginAnonymous, db } from "./firebase"
 import "./styles.css"
 
 const defaultMessages = [
-  "I know I messed up.",
-  "I'm sorry for hurting you. You mean more to me than I can explain.",
-  "I wish I could take that moment back and make things right.",
-  "Please forgive me. I really do want to make things better."
+  "Mirudulaa,\n\nEnnaku puriyudhu.\nNaa Bangalore la panna vishayam\nunakku evlo hurt aagirukkum nu.",
+  "Naa edhuvum justify panna virumbala.\nNaa pannadhu thappu.",
+  "Unna hurt pannadhu\ndhaan enakku romba varuthama irukku.\n\nI'm genuinely sorry.",
+  "Unna lose pannidanum nu\nnaan eppovume nenachadhu illa.\n\nAnd I really hope\nnamma rendu perum\noru naal normal-aa pesuvom."
 ]
 
 const demoPhotos = [
@@ -767,62 +767,53 @@ function Receiver() {
       </section>
 
       <section className="message-intro">
-        <span className="chapter-label">
-          01 · what I mean
-        </span>
-
         <p>
-          There are a few things
-          <br />
-          I need you to hear.
+          There are some things
+          I should have said sooner.
         </p>
       </section>
 
       <div className="message-stack">
         {sections.map(
-          (section, i) => (
+          (section, index) => (
             <MessageSection
-              key={i}
-              message={
-                section.message
-              }
-              photos={
-                section.photos
-              }
-              position={i}
+              key={`${index}-${section.message}`}
+              message={section.message}
+              photos={section.photos}
+              index={index}
             />
           )
         )}
       </div>
 
       <section className="receiver-ending">
-        <div className="ending-line" />
-
         <p className="tiny-label">
           And finally
         </p>
 
         <h2>
-          I am
-          <br />
-          <em>
-            sorry.
-          </em>
+          I am sorry.
         </h2>
 
-        <p className="ending-copy">
-          I know I can't undo what happened.
-          <br />
-          I just wanted you to know that it truly
-          matters to me,
-          <br />
-          and I'm really sorry.
-        </p>
+        <div className="ending-copy">
+          <p>
+            I know I can't undo what happened.
+          </p>
 
-        <p className="ending-copy ending-secondary">
+          <p>
+            I just wanted you to know that it truly
+            <br />
+            matters to me,
+            <br />
+            and I'm really sorry.
+          </p>
+        </div>
+
+        <p className="ending-secondary">
           You don't have to reply.
           <br />
           Just know that I care about you,
+          <br />
           and I hope we can be okay again someday.
         </p>
 
@@ -835,66 +826,47 @@ function Receiver() {
           onClick={handleForgive}
           type="button"
         >
-          Forgive me
-          <span>
-            ♥
-          </span>
+          Forgive me ♥
         </button>
 
-        {forgiven && (
-          <div
-            id="forgiven-message"
-            className="forgiven-message"
-          >
-            <span>
-              ♥
-            </span>
-
-            <strong>
-              Thank you.
-            </strong>
-
-            <p>
-              That means more to me
-              than you know.
-            </p>
-          </div>
-        )}
+        <div
+          className={`forgiven-message ${forgiven ? "show" : ""}`}
+          id="forgiven-message"
+        >
+          <span>♥</span>
+          <strong>
+            Thank you.
+          </strong>
+          <p>
+            That means more to me than you know.
+          </p>
+        </div>
 
         <div className="final-thanks">
           <span>
             THANK YOU FOR BEING HERE
           </span>
-
-          <i />
         </div>
       </section>
     </main>
   )
 }
 
-function MessageSection({
-  message,
-  photos,
-  position
-}) {
-  const layouts = [
-    "left",
-    "right",
-    "split",
-    "left"
-  ]
-
+function MessageSection({ message, photos, index }) {
   const [visible, setVisible] =
     useState(false)
 
-  const [settled, setSettled] =
-    useState(false)
+  const layout =
+    photos.length === 2
+      ? "split"
+      : index % 2 === 0
+        ? "left"
+        : "right"
 
   useEffect(() => {
     const element =
       document.getElementById(
-        `message-${position}`
+        `message-${index}`
       )
 
     if (!element) {
@@ -904,72 +876,46 @@ function MessageSection({
     const observer =
       new IntersectionObserver(
         entries => {
-          entries.forEach(
-            entry => {
-              if (
-                entry.isIntersecting
-              ) {
-                setVisible(true)
-
-                setTimeout(() => {
-                  setSettled(true)
-                }, 900)
-
-                observer.disconnect()
-              }
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              setVisible(true)
+              observer.disconnect()
             }
-          )
+          })
         },
         {
-          threshold: 0.3
+          threshold: 0.22
         }
       )
 
     observer.observe(element)
 
-    return () =>
-      observer.disconnect()
-  }, [position])
+    return () => observer.disconnect()
+  }, [index])
 
   return (
     <section
-      id={`message-${position}`}
-      className={`message-section ${
-        layouts[
-          position %
-            layouts.length
-        ]
-      } ${
-        visible
-          ? "is-visible"
-          : ""
-      } ${
-        settled
-          ? "is-settled"
-          : ""
-      }`}
+      className={`message-section ${layout} ${visible ? "is-visible" : ""}`}
+      id={`message-${index}`}
     >
-      {photos[0] && (
-        <div className="message-photo photo-one">
-          <img
-            src={photos[0]}
-            alt=""
-          />
-        </div>
-      )}
-
-      {photos[1] && (
-        <div className="message-photo photo-two">
-          <img
-            src={photos[1]}
-            alt=""
-          />
-        </div>
+      {photos.map(
+        (photo, photoIndex) => (
+          <div
+            className={`message-photo photo-${photoIndex + 1}`}
+            key={photo}
+          >
+            <img
+              src={photo}
+              alt=""
+              loading="lazy"
+            />
+          </div>
+        )
       )}
 
       <div className="message-copy">
         <span className="message-number">
-          0{position + 1}
+          {String(index + 1).padStart(2, "0")}
         </span>
 
         <p>
@@ -982,6 +928,4 @@ function MessageSection({
 
 createRoot(
   document.getElementById("root")
-).render(
-  <App />
-)
+).render(<App />)
