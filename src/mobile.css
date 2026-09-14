@@ -10,22 +10,24 @@
 
   .message-stack {
     width: 100%;
-    padding: 0 6px 70px;
+    padding: 0 8px 70px;
   }
 
   .message-section {
     min-height: 0;
     width: 100%;
-    padding: 105px 0 150px;
+    padding: 125px 0 165px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .message-copy {
-    width: min(72vw, 340px);
-    max-width: 340px;
-    padding: 34px 24px;
+    position: relative;
+    z-index: 10;
+    width: min(62vw, 280px);
+    max-width: 280px;
+    padding: 34px 22px;
     border-radius: 3px;
   }
 
@@ -35,7 +37,7 @@
   }
 
   .message-copy p {
-    font-size: clamp(28px,8vw,37px);
+    font-size: clamp(27px,7.2vw,35px);
     line-height: 1.1;
     letter-spacing: -.025em;
     overflow-wrap: anywhere;
@@ -43,10 +45,11 @@
   }
 
   .message-photo {
-    width: clamp(70px, 21vw, 88px);
-    height: clamp(96px, 29vw, 118px);
+    width: clamp(68px, 20vw, 84px);
+    height: clamp(94px, 28vw, 114px);
     padding: 5px 5px 14px;
-    z-index: 6;
+    z-index: 2;
+    pointer-events: none;
   }
 
   .photo-one,
@@ -54,7 +57,7 @@
   .split .photo-one {
     left: 0;
     right: auto;
-    top: 5%;
+    top: 2%;
   }
 
   .photo-two,
@@ -62,7 +65,7 @@
   .split .photo-two {
     right: 0;
     left: auto;
-    bottom: 5%;
+    bottom: 2%;
   }
 
   .message-section.is-visible.left .photo-one {
