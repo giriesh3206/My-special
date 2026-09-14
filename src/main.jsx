@@ -21,7 +21,7 @@ function Creator() {
   const [sender, setSender] = useState("Someone who is sorry")
   const [messages, setMessages] = useState(defaultMessages)
   const [photos, setPhotos] = useState([])
-  const [created, setCreated] = useState(false)
+  const [shareUrl, setShareUrl] = useState("")
 
   const addMessage = () => setMessages(value => [...value, "Write another thing you want them to know."])
   const updateMessage = (index, value) => setMessages(items => items.map((item, i) => i === index ? value : item))
@@ -33,8 +33,15 @@ function Creator() {
   }
   const removePhoto = id => setPhotos(items => items.filter(item => item.id !== id))
   const createCard = () => {
-    localStorage.setItem("sorry-card-demo", JSON.stringify({ recipient, sender, messages: messages.filter(Boolean), photos: photos.map(item => item.url) }))
-    setCreated(true)
+    const payload = {
+      recipient,
+      sender,
+      messages: messages.filter(Boolean)
+    }
+    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))))
+    const url = `${window.location.origin}/sorry/share?data=${encoded}`
+    localStorage.setItem("sorry-card-demo", JSON.stringify({ ...payload, photos: photos.map(item => item.url) }))
+    setShareUrl(url)
   }
 
   return <main className="creator-shell"><section className="creator-card">
@@ -46,8 +53,8 @@ function Creator() {
     <div className="section-heading"><div><h2>Your photos</h2><span>These appear around the messages.</span></div></div>
     <label className="upload-box"><input type="file" accept="image/*" multiple onChange={addPhotos} /><strong>+ Add photos</strong><span>Select several memories from your phone.</span></label>
     {photos.length > 0 && <div className="creator-photos">{photos.map(photo => <div className="creator-photo" key={photo.id}><img src={photo.url} alt="" /><button onClick={() => removePhoto(photo.id)}>×</button></div>)}</div>}
-    <button className="primary-button" onClick={createCard}>Preview receiver experience</button>
-    {created && <div className="created-box"><strong>Your preview is ready.</strong><a href="/sorry/demo">Open receiver experience →</a><span>For now this stores the photos in this browser. Firebase can be connected next.</span></div>}
+    <button className="primary-button" onClick={createCard}>Create receiver link</button>
+    {shareUrl && <div className="created-box"><strong>Your receiver link is ready.</strong><a href={shareUrl}>Open receiver experience →</a><input className="share-link" value={shareUrl} readOnly onFocus={e => e.target.select()} /><button className="copy-button" onClick={() => navigator.clipboard.writeText(shareUrl)}>Copy link</button><span>The message is encoded into the link, so the receiver can open it on another device without Firebase.</span></div>}
   </section></main>
 }
 
@@ -58,6 +65,14 @@ function Receiver() {
 
   useEffect(() => {
     if (isDemo) return
+    const data = new URLSearchParams(window.location.search).get("data")
+    if (data) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(data)))))
+        if (Array.isArray(parsed.messages) && parsed.messages.length) setCard(parsed)
+        return
+      } catch {}
+    }
     const saved = localStorage.getItem("sorry-card-demo")
     if (!saved) return
     try {
