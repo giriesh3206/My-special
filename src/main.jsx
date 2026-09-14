@@ -10,10 +10,10 @@ const defaultMessages = [
 ]
 
 const demoPhotos = [
-  "https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=900&q=85",
-  "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=85",
-  "https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=900&q=85",
-  "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=900&q=85"
+  "https://picsum.photos/id/1011/900/1100",
+  "https://picsum.photos/id/1027/900/1100",
+  "https://picsum.photos/id/1062/900/1100",
+  "https://picsum.photos/id/1074/900/1100"
 ]
 
 function App() {
